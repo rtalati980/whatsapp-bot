@@ -1,0 +1,133 @@
+{
+  "clinics": [
+    {
+      "id": "clinic_001",
+      "name": "Dr. Sharma's Family Clinic",
+      "twilioNumber": "+14155238886",
+      "phone": "+91 98765 43210",
+      "emergencyPhone": "+91 98888 00000",
+      "address": "Shop No. 12, Andheri West, Near D-Mart, Mumbai – 400058",
+      "timings": "Mon–Sat: 9 AM – 1 PM & 5 PM – 9 PM\nSunday: 9 AM – 12 PM",
+      "googleReviewLink": "https://g.page/r/YOUR_GOOGLE_REVIEW_LINK",
+      "fees": {
+        "new": "₹300",
+        "followup": "₹200"
+      },
+      "doctors": [
+        {
+          "name": "Dr. Rajeev Sharma",
+          "specialty": "General Physician & Diabetologist",
+          "experience": "15 Years"
+        },
+        {
+          "name": "Dr. Priya Mehta",
+          "specialty": "Gynaecologist",
+          "experience": "10 Years"
+        }
+      ],
+      "status": "active",
+      "plan": "pro",
+      "createdAt": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "appointments": [
+    {
+      "id": "1774129489415",
+      "clinicId": "clinic_001",
+      "clinicName": "Dr. Sharma's Family Clinic",
+      "patientName": "Ronak",
+      "patientPhone": "+919828524053",
+      "doctor": "Dr. Priya Mehta",
+      "date": "Tuesday 24 March, 2026",
+      "time": "6:30 PM",
+      "status": "confirmed",
+      "createdAt": "2026-03-21T21:44:49.416Z"
+    }
+  ],
+  "conversations": [
+    {
+      "clinicId": "clinic_001",
+      "from": "whatsapp:+919828524053",
+      "direction": "inbound",
+      "message": "Hi",
+      "timestamp": "2026-03-21T21:43:56.086Z"
+    },
+    {
+      "clinicId": "clinic_001",
+      "from": "whatsapp:+919828524053",
+      "direction": "outbound",
+      "message": "👋 *Namaste! I'm the assistant for Dr. Rajeev Sharma.*\n\nHow can I help you today? Please reply with a number:\n\n1️⃣  Book an Appointment\n2️⃣  Clinic Location & Timings\n3️⃣  Consultation Fees\n4️⃣  Our Doctors\n5️⃣  Emergency Contact\n⭐  Rate Us on Google\n\n_Dr. Sharma's Family Clinic · +91 98765 43210_",
+      "timestamp": "2026-03-21T21:43:56.094Z"
+    },
+    {
+      "clinicId": "clinic_001",
+      "from": "whatsapp:+919828524053",
+      "direction": "inbound",
+      "message": "1",
+      "timestamp": "2026-03-21T21:44:06.940Z"
+    },
+    {
+      "clinicId": "clinic_001",
+      "from": "whatsapp:+919828524053",
+      "direction": "outbound",
+      "message": "📅 *Book Appointment*\n\nChoose your doctor:\n\n1️⃣  Dr. Rajeev Sharma (General Physician & Diabetologist)\n2️⃣  Dr. Priya Mehta (Gynaecologist)\n\nReply with number.",
+      "timestamp": "2026-03-21T21:44:06.946Z"
+    },
+    {
+      "clinicId": "clinic_001",
+      "from": "whatsapp:+919828524053",
+      "direction": "inbound",
+      "message": "2",
+      "timestamp": "2026-03-21T21:44:18.351Z"
+    },
+    {
+      "clinicId": "clinic_001",
+      "from": "whatsapp:+919828524053",
+      "direction": "outbound",
+      "message": "📅 *Dr. Priya Mehta* selected!\n\nChoose appointment date:\n\n1️⃣  Sun, 22 Mar (Today)\n2️⃣  Mon, 23 Mar (Tomorrow)\n3️⃣  Tue, 24 Mar\n\nReply with number.",
+      "timestamp": "2026-03-21T21:44:18.501Z"
+    },
+    {
+      "clinicId": "clinic_001",
+      "from": "whatsapp:+919828524053",
+      "direction": "inbound",
+      "message": "3",
+      "timestamp": "2026-03-21T21:44:27.025Z"
+    },
+    {
+      "clinicId": "clinic_001",
+      "from": "whatsapp:+919828524053",
+      "direction": "outbound",
+      "message": "🕐 *Choose a time slot:*\n\n1️⃣  9:00 AM\n2️⃣  10:30 AM\n3️⃣  12:00 PM\n4️⃣  5:00 PM\n5️⃣  6:30 PM\n6️⃣  8:00 PM\n\nReply with slot number.",
+      "timestamp": "2026-03-21T21:44:27.033Z"
+    },
+    {
+      "clinicId": "clinic_001",
+      "from": "whatsapp:+919828524053",
+      "direction": "inbound",
+      "message": "5",
+      "timestamp": "2026-03-21T21:44:38.226Z"
+    },
+    {
+      "clinicId": "clinic_001",
+      "from": "whatsapp:+919828524053",
+      "direction": "outbound",
+      "message": "✅ Slot *6:30 PM* on *Tuesday 24 March, 2026* is available!\n\nPlease reply with your *full name*:",
+      "timestamp": "2026-03-21T21:44:38.230Z"
+    },
+    {
+      "clinicId": "clinic_001",
+      "from": "whatsapp:+919828524053",
+      "direction": "inbound",
+      "message": "Ronak",
+      "timestamp": "2026-03-21T21:44:49.411Z"
+    },
+    {
+      "clinicId": "clinic_001",
+      "from": "whatsapp:+919828524053",
+      "direction": "outbound",
+      "message": "✅ *Appointment Confirmed!* 🎉\n\n👤 Patient: *Ronak*\n👨‍⚕️ Doctor: *Dr. Priya Mehta*\n📅 Date: *Tuesday 24 March, 2026*\n🕐 Time: *6:30 PM*\n🏥 Dr. Sharma's Family Clinic\n\n_Please arrive 10 minutes early with any previous reports._\n\n📞 To reschedule call: +91 98765 43210",
+      "timestamp": "2026-03-21T21:44:49.420Z"
+    }
+  ]
+}

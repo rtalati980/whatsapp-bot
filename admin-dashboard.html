@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClinicBot — Super Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #07080d;
+  --surface: #0e1117;
+  --card: #13181f;
+  --border: #1e2530;
+  --border2: #252e3a;
+  --accent: #00e5a0;
+  --accent2: #00b37d;
+  --blue: #3d8bff;
+  --gold: #f5a623;
+  --red: #ff4d6d;
+  --text: #e8edf2;
+  --muted: #6b7a8d;
+  --muted2: #8899aa;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Epilogue', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* ── SIDEBAR ── */
+.layout { display: flex; min-height: 100vh; }
+.sidebar {
+  width: 240px; min-height: 100vh;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; bottom: 0;
+  z-index: 50;
+}
+.sidebar-logo {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.logo-mark {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px; font-weight: 800;
+  color: var(--text);
+}
+.logo-mark span { color: var(--accent); }
+.logo-sub { font-size: 10px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+
+.nav { padding: 16px 12px; flex: 1; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 10px;
+  cursor: pointer; transition: all 0.15s;
+  color: var(--muted2); font-size: 14px; font-weight: 500;
+  margin-bottom: 2px;
+}
+.nav-item:hover { background: var(--card); color: var(--text); }
+.nav-item.active { background: rgba(0,229,160,0.1); color: var(--accent); }
+.nav-icon { font-size: 16px; width: 20px; text-align: center; }
+.nav-badge {
+  margin-left: auto;
+  background: var(--accent);
+  color: #000; font-size: 10px; font-weight: 700;
+  padding: 2px 7px; border-radius: 20px;
+}
+
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid var(--border);
+  font-size: 12px; color: var(--muted);
+}
+.admin-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(0,229,160,0.08);
+  border: 1px solid rgba(0,229,160,0.2);
+  color: var(--accent); border-radius: 8px;
+  padding: 5px 10px; font-size: 11px; font-weight: 600;
+  margin-bottom: 8px;
+}
+
+/* ── MAIN ── */
+.main { margin-left: 240px; flex: 1; }
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 40;
+}
+.topbar-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; }
+.topbar-actions { display: flex; gap: 10px; }
+
+.btn {
+  padding: 9px 18px; border-radius: 10px;
+  border: none; cursor: pointer;
+  font-family: 'Epilogue', sans-serif;
+  font-size: 13px; font-weight: 600;
+  transition: all 0.15s;
+  display: inline-flex; align-items: center; gap: 7px;
+}
+.btn-primary { background: var(--accent); color: #000; }
+.btn-primary:hover { background: #00ffb3; transform: translateY(-1px); }
+.btn-ghost { background: var(--card); color: var(--text); border: 1px solid var(--border2); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn-danger { background: rgba(255,77,109,0.12); color: var(--red); border: 1px solid rgba(255,77,109,0.2); }
+.btn-danger:hover { background: var(--red); color: #fff; }
+.btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; }
+
+.content { padding: 28px; }
+
+/* ── STATS ROW ── */
+.stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 28px; }
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  position: relative; overflow: hidden;
+}
+.stat-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--accent-color, var(--accent));
+}
+.stat-card[data-color="blue"]::before { background: var(--blue); }
+.stat-card[data-color="gold"]::before { background: var(--gold); }
+.stat-card[data-color="red"]::before { background: var(--red); }
+.stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 8px; }
+.stat-value { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; color: var(--text); }
+.stat-sub { font-size: 12px; color: var(--muted); margin-top: 5px; }
+.stat-icon { position: absolute; right: 16px; top: 16px; font-size: 24px; opacity: 0.3; }
+
+/* ── SECTION ── */
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.section-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; }
+
+/* ── TABLE ── */
+.table-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead { background: var(--surface); }
+th {
+  padding: 12px 16px;
+  text-align: left; font-size: 11px;
+  text-transform: uppercase; letter-spacing: 1px;
+  color: var(--muted); font-weight: 600;
+  border-bottom: 1px solid var(--border);
+}
+td { padding: 13px 16px; font-size: 13px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.02); }
+
+.clinic-name-cell { font-weight: 600; }
+.clinic-phone { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+.status-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+}
+.pill-active { background: rgba(0,229,160,0.1); color: var(--accent); }
+.pill-inactive { background: rgba(255,77,109,0.1); color: var(--red); }
+.pill-pending { background: rgba(245,166,35,0.1); color: var(--gold); }
+.status-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+.plan-tag {
+  background: var(--surface); border: 1px solid var(--border2);
+  color: var(--muted2); border-radius: 6px;
+  padding: 2px 8px; font-size: 11px; font-weight: 600;
+  text-transform: uppercase;
+}
+.plan-pro { border-color: var(--blue); color: var(--blue); background: rgba(61,139,255,0.08); }
+.plan-enterprise { border-color: var(--gold); color: var(--gold); background: rgba(245,166,35,0.08); }
+
+.actions-cell { display: flex; gap: 6px; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+  z-index: 200; align-items: center; justify-content: center;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: 18px;
+  width: 560px; max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+  animation: modalIn 0.25s ease;
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-title { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; }
+.modal-close {
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--muted); border-radius: 8px;
+  width: 30px; height: 30px; cursor: pointer; font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.modal-close:hover { border-color: var(--red); color: var(--red); }
+.modal-body { padding: 20px 24px; }
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: flex-end; gap: 10px;
+}
+
+/* ── FORM ── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-group { margin-bottom: 0; }
+.form-group.full { grid-column: 1/-1; }
+.form-label { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: var(--text);
+  font-family: 'Epilogue', sans-serif;
+  font-size: 13px;
+  outline: none; transition: border-color 0.2s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
+.form-textarea { resize: vertical; min-height: 72px; }
+.form-select { appearance: none; }
+.form-section-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 12px; font-weight: 700;
+  color: var(--accent); letter-spacing: 1.5px;
+  text-transform: uppercase;
+  grid-column: 1/-1;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+}
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 28px; right: 28px;
+  background: var(--card); border: 1px solid var(--border2);
+  border-radius: 12px; padding: 12px 18px;
+  font-size: 13px; color: var(--text);
+  display: flex; align-items: center; gap: 8px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+  z-index: 999; transform: translateY(80px); opacity: 0;
+  transition: all 0.35s cubic-bezier(.34,1.56,.64,1);
+  max-width: 320px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast-icon { font-size: 18px; }
+
+/* ── SEARCH ── */
+.search-box {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 9px 14px;
+  color: var(--text);
+  font-family: 'Epilogue', sans-serif;
+  font-size: 13px; outline: none;
+  width: 220px;
+}
+.search-box:focus { border-color: var(--accent); }
+
+/* ── TABS ── */
+.view-tabs { display: none; }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 5px; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">Clinic<span>Bot</span></div>
+    <div class="logo-sub">Super Admin</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-item active" onclick="showSection('clinics')">
+      <span class="nav-icon">🏥</span> Clinics
+      <span class="nav-badge" id="nav-clinic-count">1</span>
+    </div>
+    <div class="nav-item" onclick="showSection('appointments')">
+      <span class="nav-icon">📅</span> All Appointments
+    </div>
+    <div class="nav-item" onclick="showSection('conversations')">
+      <span class="nav-icon">💬</span> Conversations
+    </div>
+    <div class="nav-item" onclick="showSection('settings')">
+      <span class="nav-icon">⚙️</span> Settings
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="admin-tag">👑 Super Admin</div>
+    <div>ClinicBot v1.0</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="page-title">All Clinics</div>
+    <div class="topbar-actions">
+      <input class="search-box" id="searchBox" placeholder="🔍  Search clinics..." oninput="filterClinics()" />
+      <button class="btn btn-primary" onclick="openAddModal()">➕ Onboard Clinic</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- STATS -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card">
+        <div class="stat-label">Total Clinics</div>
+        <div class="stat-value" id="s-clinics">0</div>
+        <div class="stat-sub">On platform</div>
+        <div class="stat-icon">🏥</div>
+      </div>
+      <div class="stat-card" data-color="blue">
+        <div class="stat-label">Total Appointments</div>
+        <div class="stat-value" id="s-appts">0</div>
+        <div class="stat-sub">Via WhatsApp bot</div>
+        <div class="stat-icon">📅</div>
+      </div>
+      <div class="stat-card" data-color="gold">
+        <div class="stat-label">Today's Bookings</div>
+        <div class="stat-value" id="s-today">0</div>
+        <div class="stat-sub">Across all clinics</div>
+        <div class="stat-icon">📊</div>
+      </div>
+      <div class="stat-card" data-color="red">
+        <div class="stat-label">Messages Handled</div>
+        <div class="stat-value" id="s-msgs">0</div>
+        <div class="stat-sub">WhatsApp inbound</div>
+        <div class="stat-icon">💬</div>
+      </div>
+    </div>
+
+    <!-- CLINICS SECTION -->
+    <div id="section-clinics">
+      <div class="section-header">
+        <div class="section-title">Onboarded Clinics</div>
+      </div>
+      <div class="table-card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Clinic</th>
+                <th>Twilio Number</th>
+                <th>City</th>
+                <th>Plan</th>
+                <th>Status</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="clinicsTbody">
+              <tr><td colspan="7" style="text-align:center;color:var(--muted);padding:28px">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- APPOINTMENTS SECTION -->
+    <div id="section-appointments" style="display:none">
+      <div class="section-header">
+        <div class="section-title">All Appointments</div>
+      </div>
+      <div class="table-card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Patient</th><th>Clinic</th><th>Doctor</th><th>Date</th><th>Time</th><th>Status</th><th>Booked At</th></tr></thead>
+            <tbody id="apptsTbody"><tr><td colspan="7" style="text-align:center;color:var(--muted);padding:28px">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONVERSATIONS SECTION -->
+    <div id="section-conversations" style="display:none">
+      <div class="section-header"><div class="section-title">Recent Conversations</div></div>
+      <div class="table-card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>From</th><th>Direction</th><th>Message</th><th>Time</th></tr></thead>
+            <tbody id="convTbody"><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:28px">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS SECTION -->
+    <div id="section-settings" style="display:none">
+      <div class="section-header"><div class="section-title">Platform Settings</div></div>
+      <div class="table-card" style="padding:24px">
+        <div style="color:var(--muted);font-size:14px;line-height:1.8">
+          <p>🔧 <strong style="color:var(--text)">API Base URL:</strong> <code style="color:var(--accent)">http://localhost:3000</code></p>
+          <p style="margin-top:12px">📡 <strong style="color:var(--text)">Twilio Webhook:</strong> <code style="color:var(--accent)">/webhook/whatsapp</code></p>
+          <p style="margin-top:12px">📵 <strong style="color:var(--text)">Missed Call Hook:</strong> <code style="color:var(--accent)">/webhook/missed-call</code></p>
+          <p style="margin-top:12px">💾 <strong style="color:var(--text)">Database:</strong> <code style="color:var(--accent)">db.json (local)</code></p>
+          <p style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+            To connect this dashboard to the live backend, update <code style="color:var(--gold)">API_BASE</code> in the script section below.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end layout -->
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-overlay" id="clinicModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Onboard New Clinic</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-section-label">🏥 Clinic Info</div>
+        <div class="form-group full">
+          <label class="form-label">Clinic Name *</label>
+          <input class="form-input" id="f-name" placeholder="Dr. Sharma's Family Clinic">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Number *</label>
+          <input class="form-input" id="f-phone" placeholder="+91 98765 43210">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Emergency Number</label>
+          <input class="form-input" id="f-emergency" placeholder="+91 98888 00000">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Address *</label>
+          <textarea class="form-textarea" id="f-address" placeholder="Full clinic address..."></textarea>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Timings</label>
+          <input class="form-input" id="f-timings" placeholder="Mon–Sat: 9 AM – 9 PM">
+        </div>
+
+        <div class="form-section-label">📱 Twilio & Google</div>
+        <div class="form-group full">
+          <label class="form-label">Twilio WhatsApp Number *</label>
+          <input class="form-input" id="f-twilio" placeholder="+14155238886">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Google Review Link</label>
+          <input class="form-input" id="f-google" placeholder="https://g.page/r/YOUR_LINK">
+        </div>
+
+        <div class="form-section-label">💰 Fees & Plan</div>
+        <div class="form-group">
+          <label class="form-label">New Patient Fee</label>
+          <input class="form-input" id="f-fee-new" placeholder="₹300">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Follow-up Fee</label>
+          <input class="form-input" id="f-fee-fu" placeholder="₹200">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Plan</label>
+          <select class="form-select" id="f-plan">
+            <option value="basic">Basic</option>
+            <option value="pro" selected>Pro</option>
+            <option value="enterprise">Enterprise</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="f-status">
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="pending">Pending</option>
+          </select>
+        </div>
+
+        <div class="form-section-label">👨‍⚕️ Doctors</div>
+        <div class="form-group full">
+          <label class="form-label">Doctor 1 Name</label>
+          <input class="form-input" id="f-d1-name" placeholder="Dr. Rajeev Sharma">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Specialty</label>
+          <input class="form-input" id="f-d1-spec" placeholder="General Physician">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Experience</label>
+          <input class="form-input" id="f-d1-exp" placeholder="15 Years">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Doctor 2 Name (optional)</label>
+          <input class="form-input" id="f-d2-name" placeholder="Dr. Priya Mehta">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Specialty</label>
+          <input class="form-input" id="f-d2-spec" placeholder="Gynaecologist">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Experience</label>
+          <input class="form-input" id="f-d2-exp" placeholder="10 Years">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveClinic()">💾 Save Clinic</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toast-icon">✅</span>
+  <span id="toast-msg">Done!</span>
+</div>
+
+<script>
+// Point to your backend
+const API = 'http://localhost:3000';
+
+let allClinics = [];
+let editingId  = null;
+
+// ── Load on start ──────────────────────────────────────────────
+window.onload = () => {
+  loadStats();
+  loadClinics();
+};
+
+async function loadStats() {
+  try {
+    const r = await fetch(`${API}/api/stats`).then(r=>r.json());
+    document.getElementById('s-clinics').textContent = r.totalClinics ?? '–';
+    document.getElementById('s-appts').textContent   = r.totalAppointments ?? '–';
+    document.getElementById('s-today').textContent   = r.todayAppointments ?? '–';
+    document.getElementById('s-msgs').textContent    = r.totalMessages ?? '–';
+  } catch { /* server offline – show demo data */ fillDemoStats(); }
+}
+
+function fillDemoStats() {
+  document.getElementById('s-clinics').textContent = '3';
+  document.getElementById('s-appts').textContent   = '47';
+  document.getElementById('s-today').textContent   = '8';
+  document.getElementById('s-msgs').textContent    = '214';
+}
+
+async function loadClinics() {
+  try {
+    allClinics = await fetch(`${API}/api/clinics`).then(r=>r.json());
+  } catch {
+    // Demo data if server offline
+    allClinics = [
+      { id:'clinic_001', name:"Dr. Sharma's Family Clinic", twilioNumber:'+14155238886', phone:'+91 98765 43210', address:'Andheri West, Mumbai', plan:'pro', status:'active', createdAt:'2024-01-15T00:00:00Z' },
+      { id:'clinic_002', name:"City Health Centre", twilioNumber:'+14155238887', phone:'+91 90000 11111', address:'Bandra East, Mumbai', plan:'enterprise', status:'active', createdAt:'2024-02-01T00:00:00Z' },
+      { id:'clinic_003', name:"Sunrise Multispeciality", twilioNumber:'+14155238888', phone:'+91 88888 99999', address:'Dadar, Mumbai', plan:'basic', status:'pending', createdAt:'2024-03-10T00:00:00Z' },
+    ];
+  }
+  document.getElementById('nav-clinic-count').textContent = allClinics.length;
+  renderClinics(allClinics);
+}
+
+function renderClinics(list) {
+  const tbody = document.getElementById('clinicsTbody');
+  if (!list.length) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:28px">No clinics found</td></tr>`; return; }
+  tbody.innerHTML = list.map(c => {
+    const planClass = { pro:'plan-pro', enterprise:'plan-enterprise' }[c.plan] || '';
+    const statusPill = { active:'pill-active', inactive:'pill-inactive', pending:'pill-pending' }[c.status] || 'pill-pending';
+    const city = c.address ? c.address.split(',').slice(-1)[0].trim() : '–';
+    const joined = c.createdAt ? new Date(c.createdAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '–';
+    return `<tr>
+      <td>
+        <div class="clinic-name-cell">${c.name}</div>
+        <div class="clinic-phone">${c.phone||''}</div>
+      </td>
+      <td><code style="font-size:12px;color:var(--accent)">${c.twilioNumber||'–'}</code></td>
+      <td style="color:var(--muted2)">${city}</td>
+      <td><span class="plan-tag ${planClass}">${c.plan||'basic'}</span></td>
+      <td><span class="status-pill ${statusPill}"><span class="status-dot"></span>${c.status}</span></td>
+      <td style="color:var(--muted);font-size:12px">${joined}</td>
+      <td>
+        <div class="actions-cell">
+          <button class="btn btn-ghost btn-sm" onclick="openEditModal('${c.id}')">✏️ Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteClinic('${c.id}')">🗑</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterClinics() {
+  const q = document.getElementById('searchBox').value.toLowerCase();
+  renderClinics(allClinics.filter(c =>
+    c.name.toLowerCase().includes(q) ||
+    (c.address||'').toLowerCase().includes(q) ||
+    (c.plan||'').includes(q)
+  ));
+}
+
+// ── Sections ───────────────────────────────────────────────────
+function showSection(name) {
+  ['clinics','appointments','conversations','settings'].forEach(s => {
+    document.getElementById(`section-${s}`).style.display = s === name ? '' : 'none';
+  });
+  document.querySelectorAll('.nav-item').forEach((el,i) => {
+    el.classList.toggle('active', ['clinics','appointments','conversations','settings'][i] === name);
+  });
+  const titles = { clinics:'All Clinics', appointments:'All Appointments', conversations:'Conversations', settings:'Settings' };
+  document.getElementById('page-title').textContent = titles[name];
+  if (name === 'appointments') loadAppointments();
+  if (name === 'conversations') loadConversations();
+}
+
+async function loadAppointments() {
+  let appts = [];
+  try { appts = await fetch(`${API}/api/appointments`).then(r=>r.json()); } catch { appts = []; }
+  const tbody = document.getElementById('apptsTbody');
+  if (!appts.length) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:28px">No appointments yet</td></tr>`; return; }
+  tbody.innerHTML = appts.map(a => {
+    const st = a.status === 'confirmed' ? 'pill-active' : 'pill-inactive';
+    return `<tr>
+      <td>${a.patientName}<div style="font-size:11px;color:var(--muted)">${a.patientPhone}</div></td>
+      <td style="font-size:12px">${a.clinicName}</td>
+      <td style="font-size:12px">${a.doctor}</td>
+      <td style="font-size:12px">${a.date}</td>
+      <td style="font-size:12px;color:var(--accent)">${a.time}</td>
+      <td><span class="status-pill ${st}"><span class="status-dot"></span>${a.status}</span></td>
+      <td style="font-size:11px;color:var(--muted)">${new Date(a.createdAt).toLocaleString('en-IN')}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function loadConversations() {
+  let convs = [];
+  try { convs = await fetch(`${API}/api/conversations`).then(r=>r.json()); } catch { convs = []; }
+  const tbody = document.getElementById('convTbody');
+  if (!convs.length) { tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:28px">No conversations yet</td></tr>`; return; }
+  tbody.innerHTML = convs.slice(0,50).map(c => {
+    const dir = c.direction === 'inbound' ? `<span style="color:var(--blue)">⬇ Inbound</span>` : `<span style="color:var(--accent)">⬆ Outbound</span>`;
+    return `<tr>
+      <td style="font-size:12px">${c.from}</td>
+      <td>${dir}</td>
+      <td style="font-size:12px;color:var(--muted2);max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.message}</td>
+      <td style="font-size:11px;color:var(--muted)">${new Date(c.timestamp).toLocaleString('en-IN')}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Modal ──────────────────────────────────────────────────────
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modal-title').textContent = 'Onboard New Clinic';
+  clearForm();
+  document.getElementById('clinicModal').classList.add('show');
+}
+
+function openEditModal(id) {
+  editingId = id;
+  const c = allClinics.find(x => x.id === id);
+  if (!c) return;
+  document.getElementById('modal-title').textContent = 'Edit Clinic';
+  document.getElementById('f-name').value     = c.name || '';
+  document.getElementById('f-phone').value    = c.phone || '';
+  document.getElementById('f-emergency').value= c.emergencyPhone || '';
+  document.getElementById('f-address').value  = c.address || '';
+  document.getElementById('f-timings').value  = c.timings || '';
+  document.getElementById('f-twilio').value   = c.twilioNumber || '';
+  document.getElementById('f-google').value   = c.googleReviewLink || '';
+  document.getElementById('f-fee-new').value  = c.fees?.new || '';
+  document.getElementById('f-fee-fu').value   = c.fees?.followup || '';
+  document.getElementById('f-plan').value     = c.plan || 'pro';
+  document.getElementById('f-status').value   = c.status || 'active';
+  if (c.doctors?.[0]) {
+    document.getElementById('f-d1-name').value = c.doctors[0].name || '';
+    document.getElementById('f-d1-spec').value = c.doctors[0].specialty || '';
+    document.getElementById('f-d1-exp').value  = c.doctors[0].experience || '';
+  }
+  if (c.doctors?.[1]) {
+    document.getElementById('f-d2-name').value = c.doctors[1].name || '';
+    document.getElementById('f-d2-spec').value = c.doctors[1].specialty || '';
+    document.getElementById('f-d2-exp').value  = c.doctors[1].experience || '';
+  }
+  document.getElementById('clinicModal').classList.add('show');
+}
+
+function closeModal() { document.getElementById('clinicModal').classList.remove('show'); }
+
+function clearForm() {
+  ['f-name','f-phone','f-emergency','f-address','f-timings','f-twilio','f-google','f-fee-new','f-fee-fu',
+   'f-d1-name','f-d1-spec','f-d1-exp','f-d2-name','f-d2-spec','f-d2-exp'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('f-plan').value = 'pro';
+  document.getElementById('f-status').value = 'active';
+}
+
+async function saveClinic() {
+  const doctors = [];
+  if (document.getElementById('f-d1-name').value) {
+    doctors.push({ name: document.getElementById('f-d1-name').value, specialty: document.getElementById('f-d1-spec').value, experience: document.getElementById('f-d1-exp').value });
+  }
+  if (document.getElementById('f-d2-name').value) {
+    doctors.push({ name: document.getElementById('f-d2-name').value, specialty: document.getElementById('f-d2-spec').value, experience: document.getElementById('f-d2-exp').value });
+  }
+  const payload = {
+    name: document.getElementById('f-name').value,
+    phone: document.getElementById('f-phone').value,
+    emergencyPhone: document.getElementById('f-emergency').value,
+    address: document.getElementById('f-address').value,
+    timings: document.getElementById('f-timings').value,
+    twilioNumber: document.getElementById('f-twilio').value,
+    googleReviewLink: document.getElementById('f-google').value,
+    fees: { new: document.getElementById('f-fee-new').value, followup: document.getElementById('f-fee-fu').value },
+    plan: document.getElementById('f-plan').value,
+    status: document.getElementById('f-status').value,
+    doctors
+  };
+  try {
+    const url    = editingId ? `${API}/api/clinics/${editingId}` : `${API}/api/clinics`;
+    const method = editingId ? 'PUT' : 'POST';
+    const res = await fetch(url, { method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    if (!res.ok) throw new Error();
+    showToast('✅', editingId ? 'Clinic updated!' : 'Clinic onboarded!');
+  } catch {
+    // Offline demo mode – update local array
+    if (editingId) {
+      const idx = allClinics.findIndex(c => c.id === editingId);
+      if (idx !== -1) allClinics[idx] = { ...allClinics[idx], ...payload };
+    } else {
+      allClinics.push({ id: Date.now().toString(), ...payload, createdAt: new Date().toISOString() });
+    }
+    showToast('✅', editingId ? 'Clinic updated (demo)' : 'Clinic onboarded (demo)');
+  }
+  closeModal();
+  renderClinics(allClinics);
+  document.getElementById('nav-clinic-count').textContent = allClinics.length;
+  document.getElementById('s-clinics').textContent = allClinics.length;
+}
+
+async function deleteClinic(id) {
+  if (!confirm('Delete this clinic?')) return;
+  try { await fetch(`${API}/api/clinics/${id}`, { method:'DELETE' }); } catch {}
+  allClinics = allClinics.filter(c => c.id !== id);
+  renderClinics(allClinics);
+  document.getElementById('nav-clinic-count').textContent = allClinics.length;
+  showToast('🗑️', 'Clinic removed');
+}
+
+function showToast(icon, msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-icon').textContent = icon;
+  document.getElementById('toast-msg').textContent  = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>

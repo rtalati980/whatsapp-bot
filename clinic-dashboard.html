@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClinicBot — Clinic Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f0f4f8;
+  --surface: #ffffff;
+  --card: #ffffff;
+  --sidebar-bg: #0f1923;
+  --sidebar-text: #c8d4e0;
+  --border: #e2e8f0;
+  --border2: #d0dae6;
+  --accent: #00b37d;
+  --accent-light: #e6f9f2;
+  --blue: #2563eb;
+  --blue-light: #eff6ff;
+  --gold: #d97706;
+  --gold-light: #fffbeb;
+  --red: #dc2626;
+  --red-light: #fef2f2;
+  --text: #0f172a;
+  --muted: #64748b;
+  --muted2: #94a3b8;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); }
+
+/* SIDEBAR */
+.layout { display: flex; min-height: 100vh; }
+.sidebar {
+  width: 250px; min-height: 100vh;
+  background: var(--sidebar-bg);
+  display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; bottom: 0;
+  z-index: 50;
+}
+.sidebar-logo { padding: 24px 20px 18px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.logo-main { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: #fff; }
+.logo-main span { color: #00e5a0; }
+.clinic-label {
+  margin-top: 10px;
+  background: rgba(0,229,160,0.1);
+  border: 1px solid rgba(0,229,160,0.2);
+  border-radius: 10px; padding: 8px 12px;
+}
+.clinic-label-name { font-size: 13px; font-weight: 600; color: #fff; }
+.clinic-label-sub { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 2px; }
+
+.nav { padding: 14px 12px; flex: 1; }
+.nav-group-label { font-size: 10px; color: rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: 1.5px; padding: 10px 10px 5px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 10px;
+  cursor: pointer; color: var(--sidebar-text);
+  font-size: 13.5px; font-weight: 500;
+  margin-bottom: 2px; transition: all 0.15s;
+}
+.nav-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
+.nav-item.active { background: rgba(0,229,160,0.12); color: #00e5a0; }
+.nav-icon { font-size: 16px; width: 20px; text-align: center; }
+.notif-badge {
+  margin-left: auto;
+  background: #00e5a0; color: #000;
+  font-size: 10px; font-weight: 700;
+  padding: 2px 7px; border-radius: 20px;
+}
+
+/* MAIN */
+.main { margin-left: 250px; flex: 1; }
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 40;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-title { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; }
+.today-badge {
+  background: var(--blue-light); color: var(--blue);
+  border-radius: 8px; padding: 4px 10px;
+  font-size: 12px; font-weight: 600;
+}
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.bot-status {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--accent-light);
+  border: 1px solid rgba(0,179,125,0.2);
+  color: var(--accent); border-radius: 20px;
+  padding: 6px 14px; font-size: 12px; font-weight: 600;
+}
+.bot-dot { width: 7px; height: 7px; background: var(--accent); border-radius: 50%; animation: blink 1.5s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.btn {
+  padding: 9px 16px; border-radius: 10px; border: none;
+  cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px; font-weight: 600; transition: all 0.15s;
+  display: inline-flex; align-items: center; gap: 7px;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: #009968; transform: translateY(-1px); }
+.btn-ghost { background: #fff; color: var(--text); border: 1px solid var(--border2); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn-star { background: var(--gold-light); color: var(--gold); border: 1px solid rgba(217,119,6,0.2); }
+.btn-star:hover { background: var(--gold); color: #fff; }
+.btn-danger { background: var(--red-light); color: var(--red); border: 1px solid rgba(220,38,38,0.15); }
+.btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; }
+
+.content { padding: 24px 28px; }
+
+/* STATS */
+.stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px; padding: 18px 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  position: relative; overflow: hidden;
+}
+.stat-bg-icon { position:absolute; right:12px; top:12px; font-size:32px; opacity:0.08; }
+.stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.stat-value { font-family: 'Syne', sans-serif; font-size: 30px; font-weight: 800; }
+.stat-value.green { color: var(--accent); }
+.stat-value.blue { color: var(--blue); }
+.stat-value.gold { color: var(--gold); }
+.stat-value.red { color: var(--red); }
+.stat-change { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+/* TWO-COL LAYOUT */
+.two-col { display: grid; grid-template-columns: 1fr 340px; gap: 20px; margin-bottom: 20px; }
+
+/* SECTION CARD */
+.section-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+.card-header {
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; }
+.card-body { padding: 16px 20px; }
+
+/* APPOINTMENTS TABLE */
+.appt-table { width: 100%; border-collapse: collapse; }
+.appt-table th { padding: 10px 12px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--border); background: #f8fafc; }
+.appt-table td { padding: 12px 12px; font-size: 13px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.appt-table tr:last-child td { border-bottom: none; }
+.appt-table tr:hover td { background: #f8fafc; }
+
+.pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.pill-green { background: var(--accent-light); color: var(--accent); }
+.pill-red { background: var(--red-light); color: var(--red); }
+.pill-gold { background: var(--gold-light); color: var(--gold); }
+.pill-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+/* ACTION PLAN */
+.action-list { display: flex; flex-direction: column; gap: 10px; }
+.action-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: #f8fafc; border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 14px;
+  transition: all 0.2s; cursor: pointer;
+}
+.action-item:hover { border-color: var(--accent); background: var(--accent-light); }
+.action-item.done { opacity: 0.5; }
+.action-check {
+  width: 22px; height: 22px; min-width: 22px;
+  border-radius: 6px; border: 2px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; transition: all 0.15s;
+}
+.action-item.done .action-check { background: var(--accent); border-color: var(--accent); color: #fff; }
+.action-content { flex: 1; }
+.action-title { font-size: 13px; font-weight: 600; }
+.action-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.action-tag {
+  margin-top: 6px;
+  display: inline-block;
+  background: rgba(37,99,235,0.08); color: var(--blue);
+  border-radius: 5px; padding: 2px 7px; font-size: 10px; font-weight: 600;
+}
+
+/* GOOGLE REVIEW PANEL */
+.review-hero {
+  background: linear-gradient(135deg, #1a3a4a 0%, #0f2535 100%);
+  border-radius: 14px; padding: 20px;
+  margin-bottom: 16px; text-align: center;
+  position: relative; overflow: hidden;
+}
+.review-hero::before {
+  content: '⭐'; font-size: 80px; opacity: 0.08;
+  position: absolute; right: -10px; top: -10px;
+}
+.review-stars { font-size: 24px; letter-spacing: 3px; margin-bottom: 6px; }
+.review-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: #fff; }
+.review-sub { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+
+.review-link-row { display: flex; gap: 8px; margin-bottom: 14px; }
+.review-link-input {
+  flex: 1; background: #fff; border: 1px solid var(--border2);
+  border-radius: 10px; padding: 9px 12px;
+  font-size: 12px; color: var(--text); outline: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.review-link-input:focus { border-color: var(--accent); }
+
+.send-review-box {
+  background: #f8fafc; border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px;
+}
+.send-review-label { font-size: 12px; font-weight: 600; margin-bottom: 8px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.phone-input-row { display: flex; gap: 8px; }
+.phone-input {
+  flex: 1; background: #fff; border: 1px solid var(--border2);
+  border-radius: 10px; padding: 9px 12px;
+  font-size: 13px; outline: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.phone-input:focus { border-color: var(--accent); }
+
+/* BOT CONFIG */
+.bot-config-grid { display: grid; gap: 12px; }
+.config-toggle-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: #f8fafc; border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 14px;
+}
+.config-toggle-info { }
+.config-toggle-label { font-size: 13px; font-weight: 600; }
+.config-toggle-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.toggle {
+  width: 44px; height: 24px;
+  background: var(--border2); border-radius: 24px;
+  position: relative; cursor: pointer; transition: background 0.2s;
+  border: none; flex-shrink: 0;
+}
+.toggle.on { background: var(--accent); }
+.toggle::after {
+  content: ''; position: absolute;
+  width: 18px; height: 18px; background: #fff;
+  border-radius: 50%; top: 3px; left: 3px;
+  transition: left 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.toggle.on::after { left: 23px; }
+
+/* RECENT MSGS */
+.msg-list { display: flex; flex-direction: column; gap: 8px; }
+.msg-item {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: 10px; border: 1px solid var(--border);
+  background: #f8fafc;
+}
+.msg-dir {
+  font-size: 10px; font-weight: 700; padding: 2px 7px;
+  border-radius: 5px; white-space: nowrap; margin-top: 2px;
+}
+.msg-in { background: var(--blue-light); color: var(--blue); }
+.msg-out { background: var(--accent-light); color: var(--accent); }
+.msg-text { font-size: 12px; color: var(--text); flex: 1; }
+.msg-time { font-size: 10px; color: var(--muted2); white-space: nowrap; }
+
+/* MODAL */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:200; align-items:center; justify-content:center; }
+.modal-overlay.show { display:flex; }
+.modal { background:#fff; border-radius:16px; width:440px; box-shadow:0 25px 60px rgba(0,0,0,0.2); animation:modalIn 0.2s ease; }
+@keyframes modalIn { from{opacity:0;transform:scale(0.96)} to{opacity:1;transform:scale(1)} }
+.modal-header { padding:18px 22px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.modal-title { font-family:'Syne',sans-serif; font-size:16px; font-weight:700; }
+.modal-close { background:#f1f5f9; border:none; border-radius:8px; width:28px; height:28px; cursor:pointer; font-size:14px; }
+.modal-body { padding:18px 22px; }
+.modal-footer { padding:14px 22px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:10px; }
+.form-group { margin-bottom:14px; }
+.form-label { display:block; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; font-weight:600; }
+.form-input,.form-textarea,.form-select {
+  width:100%; background:#f8fafc; border:1px solid var(--border2);
+  border-radius:10px; padding:10px 14px;
+  color:var(--text); font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:13px; outline:none; transition:border-color 0.2s;
+}
+.form-input:focus,.form-textarea:focus { border-color:var(--accent); background:#fff; }
+.form-textarea { resize:vertical; min-height:70px; }
+
+/* TOAST */
+.toast { position:fixed; bottom:24px; right:24px; background:#0f1923; color:#fff; border-radius:12px; padding:12px 18px; font-size:13px; display:flex; align-items:center; gap:8px; box-shadow:0 8px 24px rgba(0,0,0,0.3); z-index:999; transform:translateY(60px); opacity:0; transition:all 0.3s cubic-bezier(.34,1.56,.64,1); }
+.toast.show { transform:translateY(0); opacity:1; }
+
+/* SECTION VISIBILITY */
+.view { display:none; }
+.view.active { display:block; }
+
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-thumb { background:#d0dae6; border-radius:5px; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-main">Clinic<span>Bot</span></div>
+    <div class="clinic-label">
+      <div class="clinic-label-name" id="sb-clinic-name">Dr. Sharma's Clinic</div>
+      <div class="clinic-label-sub">🟢 Bot Active · WhatsApp</div>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-group-label">Overview</div>
+    <div class="nav-item active" onclick="showView('dashboard')">
+      <span class="nav-icon">📊</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="showView('appointments')">
+      <span class="nav-icon">📅</span> Appointments
+      <span class="notif-badge" id="appt-badge">0</span>
+    </div>
+    <div class="nav-group-label">Bot Tools</div>
+    <div class="nav-item" onclick="showView('google-review')">
+      <span class="nav-icon">⭐</span> Google Reviews
+    </div>
+    <div class="nav-item" onclick="showView('action-plan')">
+      <span class="nav-icon">✅</span> Action Plan
+    </div>
+    <div class="nav-item" onclick="showView('conversations')">
+      <span class="nav-icon">💬</span> Conversations
+    </div>
+    <div class="nav-group-label">Settings</div>
+    <div class="nav-item" onclick="showView('bot-config')">
+      <span class="nav-icon">🤖</span> Bot Config
+    </div>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div class="today-badge" id="today-badge">📅 Loading...</div>
+    </div>
+    <div class="topbar-right">
+      <div class="bot-status"><div class="bot-dot"></div>Bot Active</div>
+      <button class="btn btn-ghost btn-sm" onclick="showView('bot-config')">⚙️ Configure Bot</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+  <!-- ═══ DASHBOARD VIEW ═══════════════════════════════════ -->
+  <div class="view active" id="view-dashboard">
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-bg-icon">📅</div>
+        <div class="stat-label">Today's Appointments</div>
+        <div class="stat-value green" id="d-today">0</div>
+        <div class="stat-change">Booked via WhatsApp bot</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-bg-icon">📊</div>
+        <div class="stat-label">Total Appointments</div>
+        <div class="stat-value blue" id="d-total">0</div>
+        <div class="stat-change">All time</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-bg-icon">💬</div>
+        <div class="stat-label">Messages Handled</div>
+        <div class="stat-value gold" id="d-msgs">0</div>
+        <div class="stat-change">By bot this month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-bg-icon">⭐</div>
+        <div class="stat-label">Reviews Sent</div>
+        <div class="stat-value" id="d-reviews">0</div>
+        <div class="stat-change">Google review requests</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <!-- Recent appointments -->
+      <div class="section-card">
+        <div class="card-header">
+          <div class="card-title">Recent Appointments</div>
+          <button class="btn btn-ghost btn-sm" onclick="showView('appointments')">View All →</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="appt-table">
+            <thead><tr><th>Patient</th><th>Doctor</th><th>Time</th><th>Status</th><th></th></tr></thead>
+            <tbody id="dash-appts"><tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px">No appointments yet</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Quick actions -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="section-card">
+          <div class="card-header"><div class="card-title">⚡ Quick Actions</div></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn btn-star" onclick="showView('google-review')" style="width:100%;justify-content:center">⭐ Send Google Review Link</button>
+            <button class="btn btn-primary" onclick="openManualApptModal()" style="width:100%;justify-content:center">📅 Add Manual Appointment</button>
+            <button class="btn btn-ghost" onclick="showView('conversations')" style="width:100%;justify-content:center">💬 View Conversations</button>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="card-header"><div class="card-title">🤖 Bot Status</div></div>
+          <div class="card-body">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;justify-content:space-between;font-size:13px">
+                <span style="color:var(--muted)">WhatsApp Bot</span>
+                <span style="color:var(--accent);font-weight:600">● Active</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:13px">
+                <span style="color:var(--muted)">Missed Call Trigger</span>
+                <span style="color:var(--accent);font-weight:600">● Active</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:13px">
+                <span style="color:var(--muted)">Twilio Number</span>
+                <span style="font-size:12px;color:var(--blue)" id="dash-twilio">Loading...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ APPOINTMENTS VIEW ═══════════════════════════════════ -->
+  <div class="view" id="view-appointments">
+    <div class="section-card">
+      <div class="card-header">
+        <div class="card-title">📅 All Appointments</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-star btn-sm" onclick="bulkSendReview()">⭐ Send Review to All</button>
+          <button class="btn btn-primary btn-sm" onclick="openManualApptModal()">➕ Add</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="appt-table">
+          <thead><tr><th>Patient</th><th>Phone</th><th>Doctor</th><th>Date</th><th>Time</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="full-appts"><tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">No appointments yet</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ GOOGLE REVIEW VIEW ═══════════════════════════════════ -->
+  <div class="view" id="view-google-review">
+    <div class="two-col">
+      <div>
+        <div class="review-hero">
+          <div class="review-stars">⭐⭐⭐⭐⭐</div>
+          <div class="review-title">Boost Your Google Rating</div>
+          <div class="review-sub">Send review requests directly via WhatsApp</div>
+        </div>
+
+        <div class="section-card" style="margin-bottom:16px">
+          <div class="card-header"><div class="card-title">Your Google Review Link</div></div>
+          <div class="card-body">
+            <div class="review-link-row">
+              <input class="review-link-input" id="google-link" placeholder="https://g.page/r/YOUR_CLINIC_REVIEW_LINK">
+              <button class="btn btn-ghost btn-sm" onclick="saveGoogleLink()">💾 Save</button>
+            </div>
+            <p style="font-size:11px;color:var(--muted)">📌 Get your link: Google Maps → Your Business → Get more reviews → Share review form</p>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="card-header"><div class="card-title">Send to a Patient</div></div>
+          <div class="card-body">
+            <div class="send-review-box">
+              <div class="send-review-label">Patient WhatsApp Number</div>
+              <div class="phone-input-row">
+                <input class="phone-input" id="review-phone" placeholder="+91 98765 43210">
+                <button class="btn btn-star" onclick="sendReviewLink()">⭐ Send Review Link</button>
+              </div>
+            </div>
+            <div style="margin-top:14px">
+              <div class="send-review-label" style="margin-bottom:10px">Send to Recent Patients</div>
+              <div id="review-patient-list" style="display:flex;flex-direction:column;gap:8px">
+                <div style="color:var(--muted);font-size:13px">Loading recent appointments...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-card">
+          <div class="card-header"><div class="card-title">📊 Review Stats</div></div>
+          <div class="card-body">
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div style="background:#f8fafc;border-radius:10px;padding:14px">
+                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Requests Sent</div>
+                <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--gold)" id="r-sent">0</div>
+              </div>
+              <div style="background:#f8fafc;border-radius:10px;padding:14px">
+                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">WhatsApp Message</div>
+                <div style="font-size:12px;color:var(--text);line-height:1.6;margin-top:8px;padding:12px;background:#fff;border-radius:8px;border:1px solid var(--border)">
+                  ⭐ <strong>Thank you for visiting!</strong><br><br>
+                  Your feedback helps us serve patients better.<br><br>
+                  👇 Rate us on Google (takes 30 sec):<br>
+                  <span style="color:var(--blue)">[Google Review Link]</span><br><br>
+                  <em style="color:var(--muted)">Your review helps other patients find us. 🙏</em>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ACTION PLAN VIEW ════════════════════════════════════ -->
+  <div class="view" id="view-action-plan">
+    <div class="two-col">
+      <div>
+        <div class="section-card">
+          <div class="card-header">
+            <div class="card-title">✅ Action Plan</div>
+            <div style="font-size:12px;color:var(--muted)" id="action-progress">0/8 completed</div>
+          </div>
+          <div class="card-body">
+            <div class="action-list" id="actionList"></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="section-card">
+          <div class="card-header"><div class="card-title">📈 Progress</div></div>
+          <div class="card-body">
+            <div style="margin-bottom:16px">
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                <span style="font-size:13px;font-weight:600">Setup Completion</span>
+                <span style="font-size:13px;color:var(--accent);font-weight:700" id="progress-pct">0%</span>
+              </div>
+              <div style="background:#f1f5f9;border-radius:20px;height:10px;overflow:hidden">
+                <div id="progress-bar" style="height:100%;background:linear-gradient(90deg,#00b37d,#00e5a0);border-radius:20px;width:0%;transition:width 0.5s ease"></div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--muted)">
+              <div>🎯 Complete all steps to maximize bot performance</div>
+              <div>📱 Each step improves patient experience</div>
+              <div>⭐ Don't forget to collect Google reviews!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CONVERSATIONS VIEW ═══════════════════════════════════ -->
+  <div class="view" id="view-conversations">
+    <div class="section-card">
+      <div class="card-header">
+        <div class="card-title">💬 Recent Bot Conversations</div>
+        <button class="btn btn-ghost btn-sm" onclick="loadConversations()">🔄 Refresh</button>
+      </div>
+      <div class="card-body">
+        <div class="msg-list" id="conv-list">
+          <div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">No conversations yet. They'll appear here as patients message.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ BOT CONFIG VIEW ═══════════════════════════════════ -->
+  <div class="view" id="view-bot-config">
+    <div class="two-col">
+      <div>
+        <div class="section-card" style="margin-bottom:16px">
+          <div class="card-header"><div class="card-title">🤖 Bot Configuration</div></div>
+          <div class="card-body">
+            <div class="bot-config-grid">
+              <div class="config-toggle-row">
+                <div class="config-toggle-info">
+                  <div class="config-toggle-label">Auto-reply on WhatsApp</div>
+                  <div class="config-toggle-desc">Respond to all incoming messages</div>
+                </div>
+                <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+              </div>
+              <div class="config-toggle-row">
+                <div class="config-toggle-info">
+                  <div class="config-toggle-label">Missed Call Trigger</div>
+                  <div class="config-toggle-desc">Send WhatsApp when call is missed</div>
+                </div>
+                <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+              </div>
+              <div class="config-toggle-row">
+                <div class="config-toggle-info">
+                  <div class="config-toggle-label">Appointment Booking</div>
+                  <div class="config-toggle-desc">Allow patients to book via bot</div>
+                </div>
+                <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+              </div>
+              <div class="config-toggle-row">
+                <div class="config-toggle-info">
+                  <div class="config-toggle-label">Google Review Prompt</div>
+                  <div class="config-toggle-desc">Ask for reviews via WhatsApp</div>
+                </div>
+                <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+              </div>
+              <div class="config-toggle-row">
+                <div class="config-toggle-info">
+                  <div class="config-toggle-label">Emergency Routing</div>
+                  <div class="config-toggle-desc">Detect & route emergency messages</div>
+                </div>
+                <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="card-header"><div class="card-title">📋 Clinic Info (Bot Uses This)</div></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">Clinic Name</label>
+              <input class="form-input" id="cfg-name" placeholder="Dr. Sharma's Family Clinic">
+            </div>
+            <div class="form-group">
+              <label class="form-label">WhatsApp / Phone</label>
+              <input class="form-input" id="cfg-phone" placeholder="+91 98765 43210">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Address</label>
+              <textarea class="form-textarea" id="cfg-address" placeholder="Full clinic address"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Timings</label>
+              <input class="form-input" id="cfg-timings" placeholder="Mon–Sat: 9 AM – 9 PM">
+            </div>
+            <button class="btn btn-primary" onclick="saveBotConfig()">💾 Save Configuration</button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-card">
+          <div class="card-header"><div class="card-title">🔌 Integration Info</div></div>
+          <div class="card-body" style="font-size:13px;line-height:2">
+            <div><span style="color:var(--muted)">Twilio Number:</span> <strong id="cfg-twilio-display">–</strong></div>
+            <div><span style="color:var(--muted)">Webhook Status:</span> <strong style="color:var(--accent)">● Connected</strong></div>
+            <div><span style="color:var(--muted)">Clinic ID:</span> <code style="font-size:11px;color:var(--blue)" id="cfg-clinic-id">–</code></div>
+            <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+              <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Webhook URLs</div>
+              <div style="background:#f8fafc;border-radius:8px;padding:10px;font-family:monospace;font-size:11px;color:var(--text)">
+                POST /webhook/whatsapp<br>
+                POST /webhook/missed-call
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- content -->
+</div><!-- main -->
+</div><!-- layout -->
+
+<!-- MANUAL APPT MODAL -->
+<div class="modal-overlay" id="apptModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📅 Add Manual Appointment</div>
+      <button class="modal-close" onclick="closeApptModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Patient Name</label><input class="form-input" id="m-name" placeholder="Rahul Verma"></div>
+      <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="m-phone" placeholder="+91 98765 43210"></div>
+      <div class="form-group"><label class="form-label">Doctor</label><input class="form-input" id="m-doctor" placeholder="Dr. Rajeev Sharma"></div>
+      <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="m-date" type="date"></div>
+      <div class="form-group"><label class="form-label">Time</label>
+        <select class="form-input" id="m-time">
+          <option>9:00 AM</option><option>10:30 AM</option><option>12:00 PM</option>
+          <option>5:00 PM</option><option>6:30 PM</option><option>8:00 PM</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeApptModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveManualAppt()">✅ Confirm Appointment</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span id="t-icon">✅</span>
+  <span id="t-msg">Done!</span>
+</div>
+
+<script>
+const API       = 'http://localhost:3000';
+const CLINIC_ID = 'clinic_001'; // Change to the actual clinic ID
+
+let appointments  = [];
+let reviewsSent   = 0;
+let actionStates  = {};
+
+const ACTIONS = [
+  { id:'a1', title:'Configure Twilio Webhook', desc:'Set webhook URL in Twilio console', tag:'Setup', icon:'🔌' },
+  { id:'a2', title:'Add Google Review Link', desc:'Paste your Google review URL in bot settings', tag:'Setup', icon:'⭐' },
+  { id:'a3', title:'Test WhatsApp Bot', desc:'Send "Hi" to your Twilio number and verify reply', tag:'Testing', icon:'💬' },
+  { id:'a4', title:'Test Missed Call Flow', desc:'Call your number and check WhatsApp auto-reply', tag:'Testing', icon:'📵' },
+  { id:'a5', title:'Verify Appointment Booking', desc:'Complete a full booking flow end-to-end', tag:'Testing', icon:'📅' },
+  { id:'a6', title:'Share Bot Number with Patients', desc:'Add WhatsApp number to visiting cards & website', tag:'Growth', icon:'📢' },
+  { id:'a7', title:'Send Review Links to Existing Patients', desc:'Import old patient numbers and send review requests', tag:'Growth', icon:'⭐' },
+  { id:'a8', title:'Train Front Desk Staff', desc:'Teach staff to monitor dashboard and handle edge cases', tag:'Operations', icon:'👥' },
+];
+
+// ── Init ────────────────────────────────────────────────
+window.onload = () => {
+  setTodayDate();
+  loadClinicInfo();
+  loadAppointments();
+  renderActions();
+  document.getElementById('m-date').value = new Date().toISOString().split('T')[0];
+};
+
+function setTodayDate() {
+  const d = new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('today-badge').textContent = `📅 ${d}`;
+}
+
+async function loadClinicInfo() {
+  try {
+    const clinics = await fetch(`${API}/api/clinics`).then(r=>r.json());
+    const c = clinics.find(x => x.id === CLINIC_ID) || clinics[0];
+    if (c) populateClinic(c);
+  } catch {
+    populateClinic({ id:'clinic_001', name:"Dr. Sharma's Family Clinic", twilioNumber:'+14155238886', phone:'+91 98765 43210', address:'Andheri West, Mumbai', timings:'Mon–Sat: 9 AM – 9 PM', googleReviewLink:'' });
+  }
+}
+
+function populateClinic(c) {
+  document.getElementById('sb-clinic-name').textContent   = c.name;
+  document.getElementById('dash-twilio').textContent      = c.twilioNumber || '–';
+  document.getElementById('cfg-twilio-display').textContent = c.twilioNumber || '–';
+  document.getElementById('cfg-clinic-id').textContent    = c.id || '–';
+  document.getElementById('cfg-name').value    = c.name || '';
+  document.getElementById('cfg-phone').value   = c.phone || '';
+  document.getElementById('cfg-address').value = c.address || '';
+  document.getElementById('cfg-timings').value = c.timings || '';
+  document.getElementById('google-link').value = c.googleReviewLink || '';
+}
+
+async function loadAppointments() {
+  try {
+    appointments = await fetch(`${API}/api/appointments?clinicId=${CLINIC_ID}`).then(r=>r.json());
+  } catch {
+    appointments = [
+      { id:'1', patientName:'Rahul Verma', patientPhone:'+919876543210', doctor:"Dr. Rajeev Sharma", date:'Monday, 24 March', time:'10:30 AM', status:'confirmed', createdAt: new Date().toISOString() },
+      { id:'2', patientName:'Pooja Iyer', patientPhone:'+919988776655', doctor:"Dr. Priya Mehta", date:'Monday, 24 March', time:'6:30 PM', status:'confirmed', createdAt: new Date().toISOString() },
+    ];
+  }
+
+  const todayStr = new Date().toDateString();
+  const todayAppts = appointments.filter(a => new Date(a.createdAt).toDateString() === todayStr);
+
+  document.getElementById('d-today').textContent  = todayAppts.length;
+  document.getElementById('d-total').textContent  = appointments.length;
+  document.getElementById('d-msgs').textContent   = appointments.length * 7; // estimate
+  document.getElementById('d-reviews').textContent = reviewsSent;
+  document.getElementById('appt-badge').textContent = appointments.length;
+
+  renderDashAppts();
+  renderFullAppts();
+  renderReviewPatients();
+}
+
+function renderDashAppts() {
+  const tbody = document.getElementById('dash-appts');
+  const recent = appointments.slice(0,5);
+  if (!recent.length) { tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px">No appointments yet</td></tr>`; return; }
+  tbody.innerHTML = recent.map(a => `
+    <tr>
+      <td style="font-weight:600">${a.patientName}</td>
+      <td style="font-size:12px;color:var(--muted)">${a.doctor}</td>
+      <td style="font-size:12px;color:var(--blue);font-weight:600">${a.time}</td>
+      <td><span class="pill pill-green"><span class="pill-dot"></span>${a.status}</span></td>
+      <td><button class="btn btn-star btn-sm" onclick="sendReviewToPatient('${a.patientPhone}')">⭐</button></td>
+    </tr>
+  `).join('');
+}
+
+function renderFullAppts() {
+  const tbody = document.getElementById('full-appts');
+  if (!appointments.length) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">No appointments yet</td></tr>`; return; }
+  tbody.innerHTML = appointments.map(a => `
+    <tr>
+      <td style="font-weight:600">${a.patientName}</td>
+      <td style="font-size:12px">${a.patientPhone}</td>
+      <td style="font-size:12px;color:var(--muted)">${a.doctor}</td>
+      <td style="font-size:12px">${a.date}</td>
+      <td style="font-size:12px;color:var(--blue);font-weight:600">${a.time}</td>
+      <td><span class="pill pill-green"><span class="pill-dot"></span>${a.status}</span></td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-star btn-sm" onclick="sendReviewToPatient('${a.patientPhone}')">⭐ Review</button>
+          <button class="btn btn-danger btn-sm" onclick="cancelAppt('${a.id}')">✕</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderReviewPatients() {
+  const list = document.getElementById('review-patient-list');
+  if (!appointments.length) { list.innerHTML = '<div style="color:var(--muted);font-size:13px">No recent patients</div>'; return; }
+  list.innerHTML = appointments.slice(0,5).map(a => `
+    <div style="display:flex;align-items:center;justify-content:space-between;background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:10px 12px">
+      <div>
+        <div style="font-size:13px;font-weight:600">${a.patientName}</div>
+        <div style="font-size:11px;color:var(--muted)">${a.patientPhone} · ${a.time}</div>
+      </div>
+      <button class="btn btn-star btn-sm" onclick="sendReviewToPatient('${a.patientPhone}')">⭐ Send</button>
+    </div>
+  `).join('');
+}
+
+// ── Google Review ──────────────────────────────────────
+function saveGoogleLink() {
+  showToast('✅', 'Google review link saved!');
+}
+
+async function sendReviewLink() {
+  const phone = document.getElementById('review-phone').value.trim();
+  if (!phone) { showToast('⚠️', 'Enter a phone number'); return; }
+  await sendReviewToPatient(phone);
+  document.getElementById('review-phone').value = '';
+}
+
+async function sendReviewToPatient(phone) {
+  try {
+    await fetch(`${API}/api/send-review`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ clinicId: CLINIC_ID, patientPhone: phone })
+    });
+  } catch {}
+  reviewsSent++;
+  document.getElementById('d-reviews').textContent = reviewsSent;
+  document.getElementById('r-sent').textContent = reviewsSent;
+  showToast('⭐', `Review link sent to ${phone}!`);
+}
+
+async function bulkSendReview() {
+  if (!appointments.length) { showToast('⚠️', 'No appointments to send to'); return; }
+  for (const a of appointments.slice(0,10)) {
+    await sendReviewToPatient(a.patientPhone);
+    await new Promise(r => setTimeout(r, 300));
+  }
+  showToast('⭐', `Sent to ${Math.min(appointments.length,10)} patients!`);
+}
+
+// ── Actions ────────────────────────────────────────────
+function renderActions() {
+  const list = document.getElementById('actionList');
+  list.innerHTML = ACTIONS.map(a => `
+    <div class="action-item ${actionStates[a.id] ? 'done' : ''}" onclick="toggleAction('${a.id}', this)">
+      <div class="action-check">${actionStates[a.id] ? '✓' : ''}</div>
+      <div class="action-content">
+        <div class="action-title">${a.icon} ${a.title}</div>
+        <div class="action-desc">${a.desc}</div>
+        <span class="action-tag">${a.tag}</span>
+      </div>
+    </div>
+  `).join('');
+  updateProgress();
+}
+
+function toggleAction(id, el) {
+  actionStates[id] = !actionStates[id];
+  el.classList.toggle('done', actionStates[id]);
+  el.querySelector('.action-check').textContent = actionStates[id] ? '✓' : '';
+  updateProgress();
+}
+
+function updateProgress() {
+  const done = Object.values(actionStates).filter(Boolean).length;
+  const total = ACTIONS.length;
+  const pct = Math.round(done/total*100);
+  document.getElementById('action-progress').textContent = `${done}/${total} completed`;
+  document.getElementById('progress-pct').textContent = `${pct}%`;
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+// ── Conversations ─────────────────────────────────────
+async function loadConversations() {
+  let convs = [];
+  try { convs = await fetch(`${API}/api/conversations?clinicId=${CLINIC_ID}`).then(r=>r.json()); } catch {
+    convs = [
+      { from:'whatsapp:+919876543210', direction:'inbound', message:'Hi I want to book appointment', timestamp: new Date().toISOString() },
+      { from:'whatsapp:+919876543210', direction:'outbound', message:'📅 Sure! Let\'s book your appointment...', timestamp: new Date().toISOString() },
+    ];
+  }
+  const list = document.getElementById('conv-list');
+  if (!convs.length) { list.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">No conversations yet</div>'; return; }
+  list.innerHTML = convs.slice(0,30).map(c => `
+    <div class="msg-item">
+      <span class="msg-dir ${c.direction === 'inbound' ? 'msg-in' : 'msg-out'}">${c.direction === 'inbound' ? '⬇ In' : '⬆ Out'}</span>
+      <div class="msg-text">${c.message.substring(0,120)}${c.message.length > 120 ? '...' : ''}</div>
+      <div class="msg-time">${new Date(c.timestamp).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</div>
+    </div>
+  `).join('');
+}
+
+// ── Manual Appointment ─────────────────────────────────
+function openManualApptModal() { document.getElementById('apptModal').classList.add('show'); }
+function closeApptModal() { document.getElementById('apptModal').classList.remove('show'); }
+function saveManualAppt() {
+  const name   = document.getElementById('m-name').value;
+  const phone  = document.getElementById('m-phone').value;
+  const doctor = document.getElementById('m-doctor').value;
+  const date   = document.getElementById('m-date').value;
+  const time   = document.getElementById('m-time').value;
+  if (!name) { showToast('⚠️', 'Enter patient name'); return; }
+  appointments.unshift({ id: Date.now().toString(), patientName:name, patientPhone:phone, doctor, date, time, status:'confirmed', createdAt:new Date().toISOString() });
+  closeApptModal();
+  renderDashAppts(); renderFullAppts(); renderReviewPatients();
+  document.getElementById('d-total').textContent = appointments.length;
+  document.getElementById('appt-badge').textContent = appointments.length;
+  showToast('✅', 'Appointment added!');
+}
+
+function cancelAppt(id) {
+  appointments = appointments.filter(a => a.id !== id);
+  renderFullAppts(); renderDashAppts();
+  document.getElementById('d-total').textContent = appointments.length;
+  showToast('🗑️', 'Appointment removed');
+}
+
+// ── Bot Config ─────────────────────────────────────────
+function saveBotConfig() { showToast('✅', 'Bot configuration saved!'); }
+
+// ── View switcher ─────────────────────────────────────
+const VIEW_TITLES = {
+  dashboard:'Dashboard', appointments:'Appointments', 'google-review':'Google Reviews',
+  'action-plan':'Action Plan', conversations:'Conversations', 'bot-config':'Bot Configuration'
+};
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(`view-${name}`).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el => {
+    if (el.textContent.trim().toLowerCase().includes(name.replace('-',' '))) el.classList.add('active');
+  });
+  document.getElementById('page-title').textContent = VIEW_TITLES[name] || name;
+  if (name === 'conversations') loadConversations();
+}
+
+// ── Toast ──────────────────────────────────────────────
+function showToast(icon, msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('t-icon').textContent = icon;
+  document.getElementById('t-msg').textContent  = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
